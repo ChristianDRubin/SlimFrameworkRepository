@@ -1,4 +1,7 @@
 <?php
+$app->response->setStatus(200);
+$app->response()->headers->set('Content-Type', 'application/json');
+
 $app->get("/login", function() use($app)
 {	
 	//Obtengo los parametros que vienen por get
@@ -6,24 +9,15 @@ $app->get("/login", function() use($app)
       $usuario = $app->request->get('usuario');       
       $password = $app->request->get('clave');		 
 	try{
-		$connection = getConnection();
-		$stm = $connection->prepare("SELECT * FROM usuarios where nombre =? and clave = ?");				 
-		$stm->bindParam(1, $usuario);
-		$stm->bindParam(2, $password);	
-		$stm->execute();
-		$usuario = $stm->fetch();		
-        if($usuario) {
-            $app->response->setStatus(200);
-            $app->response()->headers->set('Content-Type', 'application/json');
-    		$app->response->body(json_encode($usuario));		      
-            $connection = null;
-        } else {
-            throw new Exception('No se encontro al usuario');
-        } 
-     }
-     catch(Exception $e) {
-        $app->response()->setStatus(404);
-        echo 'Error:'. $e->getMessage() .'';
+		$service = new UserService();
+        $result = array("message" => $service->login($usuario,$password));
+        $app->response->body(json_encode($result));
+    }catch(UserNotFoundExeption $ue) {
+        $app->response()->setStatus(200);
+        $result = array("message" => $service->login($usuario,$password));
+    }catch(Exception $e) {
+        $app->response()->setStatus(500);
+         $app->response->body($e->getMessage());
     }
 });
 

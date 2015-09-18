@@ -1,6 +1,7 @@
 <?php
-
 require 'Slim/Slim.php';
+require 'api/Exceptions/UserNotFoundException.php';
+require 'api/Services/UserService.php';
 
 \Slim\Slim::registerAutoloader();
 
